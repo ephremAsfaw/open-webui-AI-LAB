@@ -1,0 +1,20 @@
+# Credentials (auto-generated, contains secrets)
+.credentials
+.env
+
+# Persistent data directory
+data/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# Logs
+*.log

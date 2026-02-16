@@ -1,0 +1,33 @@
+image:
+  repository: docker.litellm.ai/berriai/litellm
+  tag: main-latest
+
+service:
+  type: ClusterIP
+  port: 4000
+
+env:
+  LITELLM_MASTER_KEY: "sk-1d6c1901c89380f9ce4b0cc4b2c23f2e402afdb5441b418d64ca262e3835b824"
+  LITELLM_ENABLE_ADMIN_UI: "true"
+  DATABASE_URL: "postgresql://postgres:FROREJ4fhH@langfuse-db-postgresql.ai.svc.cluster.local:5432/litellm"
+
+  # IMPORTANT: use the REAL pk + sk from your Langfuse project
+  LANGFUSE_PUBLIC_KEY: "pk-lf-27a861c5-f236-4232-821d-4be99136a1ea"
+  LANGFUSE_SECRET_KEY: "sk-lf-d000dc8d-4768-4198-b153-48711e8a4cc5"
+
+  # Langfuse host (internal cluster service URL)
+  LANGFUSE_HOST: "http://langfuse.ai.svc.cluster.local:3000"
+
+configYaml: |
+  litellm_settings:
+    callbacks: ["langfuse"]
+
+  model_list:
+    - model_name: llama3.2
+      litellm_params:
+        model: ollama/llama3.2:1b
+        api_base: http://ollama.ai.svc.cluster.local:11434
+    - model_name: llama3.2-3b
+      litellm_params:
+        model: ollama/llama3.2:latest
+        api_base: http://ollama.ai.svc.cluster.local:11434

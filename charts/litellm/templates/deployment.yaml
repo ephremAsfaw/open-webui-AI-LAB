@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "litellm.fullname" . }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "litellm.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "litellm.fullname" . }}
+    spec:
+      containers:
+        - name: litellm
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: 4000
+          env:
+            {{- range $k, $v := .Values.env }}
+            - name: {{ $k }}
+              value: {{ $v | quote }}
+            {{- end }}
+          volumeMounts:
+            - name: litellm-config
+              mountPath: /app/config.yaml
+              subPath: config.yaml
+          args: ["--config", "/app/config.yaml", "--port", "4000"]
+      volumes:
+        - name: litellm-config
+          configMap:
+            name: {{ include "litellm.fullname" . }}-config

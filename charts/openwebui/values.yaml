@@ -1,0 +1,20 @@
+image:
+  repository: ghcr.io/open-webui/open-webui
+  tag: main
+
+service:
+  type: ClusterIP
+  port: 8080
+
+persistence:
+  enabled: true
+  size: 5Gi
+  storageClassName: hostpath
+  volumeName: openwebui-pv
+
+env:
+  OPENAI_API_BASE_URL: "http://litellm.ai.svc.cluster.local:4000/v1"
+  OPENAI_API_KEY: "sk-1d6c1901c89380f9ce4b0cc4b2c23f2e402afdb5441b418d64ca262e3835b824"
+  ENABLE_FORWARD_USER_INFO_HEADERS: "True"
+  # Disable direct Ollama connection - force all requests through LiteLLM
+  ENABLE_OLLAMA_API: "False"

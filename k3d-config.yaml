@@ -1,0 +1,29 @@
+apiVersion: k3d.io/v1alpha5
+kind: Simple
+metadata:
+  name: ai-lab
+servers: 1
+agents: 0
+ports:
+  - port: 3100:30510
+    nodeFilters:
+      - server:0
+volumes:
+  - volume: /home/ephrem/AiLab/data/postgres:/data/postgres
+    nodeFilters:
+      - server:0
+  - volume: /home/ephrem/AiLab/data/openwebui:/data/openwebui
+    nodeFilters:
+      - server:0
+  - volume: /home/ephrem/AiLab/data/ollama:/data/ollama
+    nodeFilters:
+      - server:0
+  - volume: /home/ephrem/AiLab/data/langfuse:/data/langfuse
+    nodeFilters:
+      - server:0
+options:
+  k3s:
+    extraArgs:
+      - arg: --disable=traefik
+        nodeFilters:
+          - server:0

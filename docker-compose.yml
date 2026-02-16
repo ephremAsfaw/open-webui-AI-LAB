@@ -1,0 +1,105 @@
+version: "3.8"
+
+services:
+  # ===========================================
+  # PostgreSQL Database
+  # ===========================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: ai-lab-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres123}
+      POSTGRES_DB: langfuse
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ===========================================
+  # Langfuse - LLM Observability
+  # ===========================================
+  langfuse:
+    image: ghcr.io/langfuse/langfuse:2
+    container_name: ai-lab-langfuse
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres123}@postgres:5432/langfuse
+      NEXTAUTH_URL: http://localhost:3000
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-change-me-in-production}
+      SALT: ${SALT:-change-me-in-production}
+    ports:
+      - "3000:3000"
+
+  # ===========================================
+  # Ollama - Local LLM Runner
+  # ===========================================
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ai-lab-ollama
+    restart: unless-stopped
+    volumes:
+      - ollama_data:/root/.ollama
+    # Uncomment for GPU support (NVIDIA):
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+  # ===========================================
+  # LiteLLM - OpenAI-Compatible Proxy
+  # ===========================================
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: ai-lab-litellm
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - ollama
+      - langfuse
+    environment:
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:-sk-1234567890}
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres123}@postgres:5432/litellm
+      # Langfuse integration - update these after creating a project in Langfuse
+      LANGFUSE_PUBLIC_KEY: ${LANGFUSE_PUBLIC_KEY:-}
+      LANGFUSE_SECRET_KEY: ${LANGFUSE_SECRET_KEY:-}
+      LANGFUSE_HOST: http://langfuse:3000
+    volumes:
+      - ./litellm-config.yaml:/app/config.yaml:ro
+    command: ["--config", "/app/config.yaml"]
+    ports:
+      - "4000:4000"
+
+  # ===========================================
+  # Open WebUI - Chat Interface
+  # ===========================================
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: ai-lab-openwebui
+    restart: unless-stopped
+    depends_on:
+      - litellm
+    environment:
+      OPENAI_API_BASE_URL: http://litellm:4000/v1
+      OPENAI_API_KEY: ${LITELLM_MASTER_KEY:-sk-1234567890}
+      ENABLE_OLLAMA_API: "false"
+    volumes:
+      - openwebui_data:/app/backend/data
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:
+  ollama_data:
+  openwebui_data:

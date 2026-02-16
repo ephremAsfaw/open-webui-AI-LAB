@@ -1,0 +1,11 @@
+# PostgreSQL Helm values with hostPath persistence
+auth:
+  postgresPassword: FROREJ4fhH
+  username: langfuse
+  password: langfusepass
+  database: langfuse
+
+primary:
+  persistence:
+    enabled: true
+    existingClaim: postgres-pvc

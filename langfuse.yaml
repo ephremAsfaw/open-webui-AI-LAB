@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: langfuse-secret
+  namespace: ai
+type: Opaque
+stringData:
+  NEXTAUTH_SECRET: "dev-nextauth-secret-change-me"
+  SALT: "dev-salt-change-me"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: langfuse
+  namespace: ai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: langfuse
+  template:
+    metadata:
+      labels:
+        app: langfuse
+    spec:
+      containers:
+        - name: langfuse
+          image: ghcr.io/langfuse/langfuse:2
+          ports:
+            - containerPort: 3000
+          env:
+            - name: DATABASE_URL
+              value: "postgresql://langfuse:langfusepass@langfuse-db-postgresql.ai.svc.cluster.local:5432/langfuse"
+            - name: NEXTAUTH_URL
+              value: "http://langfuse.local:3100"
+            - name: NEXTAUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: langfuse-secret
+                  key: NEXTAUTH_SECRET
+            - name: SALT
+              valueFrom:
+                secretKeyRef:
+                  name: langfuse-secret
+                  key: SALT
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: langfuse
+  namespace: ai
+spec:
+  selector:
+    app: langfuse
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000
