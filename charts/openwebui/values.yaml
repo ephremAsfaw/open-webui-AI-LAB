@@ -18,3 +18,31 @@ env:
   ENABLE_FORWARD_USER_INFO_HEADERS: "True"
   # Disable direct Ollama connection - force all requests through LiteLLM
   ENABLE_OLLAMA_API: "False"
+
+  # ===== Keycloak OIDC Configuration =====
+  # Disable native signup/login - force Keycloak auth
+  ENABLE_SIGNUP: "False"
+  ENABLE_LOGIN_FORM: "False"
+
+  # OAuth/OIDC Settings
+  ENABLE_OAUTH_SIGNUP: "True"
+  OAUTH_MERGE_ACCOUNTS_BY_EMAIL: "True"
+  OAUTH_PROVIDER_NAME: "AI Lab Login"
+
+  # Auto-activate OAuth users (not "pending")
+  DEFAULT_USER_ROLE: "user"
+
+  # Keycloak OIDC endpoints
+  # Uses internal K8s DNS for backend communication - must be full discovery URL
+  OPENID_PROVIDER_URL: "http://keycloak.ai.svc.cluster.local:3100/realms/ai-lab/.well-known/openid-configuration"
+  OAUTH_CLIENT_ID: "openwebui"
+  OAUTH_CLIENT_SECRET: "openwebui-client-secret-change-me"
+  OAUTH_SCOPES: "openid email profile"
+  OAUTH_CODE_CHALLENGE_METHOD: "S256"
+
+  # Redirect URI (external URL)
+  WEBUI_URL: "http://openwebui.local:3100"
+  OPENID_REDIRECT_URI: "http://openwebui.local:3100/oauth/oidc/callback"
+
+  # Logout - redirect to Keycloak logout with post_logout_redirect_uri
+  OPENID_LOGOUT_URL: "http://keycloak.local:3100/realms/ai-lab/protocol/openid-connect/logout?post_logout_redirect_uri=http%3A%2F%2Fopenwebui.local%3A3100"

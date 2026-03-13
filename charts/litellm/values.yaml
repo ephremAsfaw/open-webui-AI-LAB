@@ -12,8 +12,8 @@ env:
   DATABASE_URL: "postgresql://postgres:FROREJ4fhH@langfuse-db-postgresql.ai.svc.cluster.local:5432/litellm"
 
   # IMPORTANT: use the REAL pk + sk from your Langfuse project
-  LANGFUSE_PUBLIC_KEY: "pk-lf-27a861c5-f236-4232-821d-4be99136a1ea"
-  LANGFUSE_SECRET_KEY: "sk-lf-d000dc8d-4768-4198-b153-48711e8a4cc5"
+  LANGFUSE_PUBLIC_KEY: "pk-lf-658506d3-8ac0-492c-a540-608b76cfa3d8"
+  LANGFUSE_SECRET_KEY: "sk-lf-8dd274fd-b04d-46d8-b4b6-91b79d0165c5"
 
   # Langfuse host (internal cluster service URL)
   LANGFUSE_HOST: "http://langfuse.ai.svc.cluster.local:3000"
@@ -21,6 +21,8 @@ env:
 configYaml: |
   litellm_settings:
     callbacks: ["langfuse"]
+    success_callback: ["langfuse"]
+    failure_callback: ["langfuse"]
 
   model_list:
     - model_name: llama3.2

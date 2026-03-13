@@ -32,6 +32,12 @@ kubectl -n "${NAMESPACE}" wait --for=condition=Ready pod -l app.kubernetes.io/na
 echo "==> Creating LiteLLM database..."
 kubectl -n "${NAMESPACE}" exec langfuse-db-postgresql-0 -- env PGPASSWORD=FROREJ4fhH psql -U postgres -c "CREATE DATABASE litellm;" 2>/dev/null || true
 
+echo "==> Creating Keycloak database..."
+kubectl -n "${NAMESPACE}" exec langfuse-db-postgresql-0 -- env PGPASSWORD=FROREJ4fhH psql -U postgres -c "CREATE DATABASE keycloak;" 2>/dev/null || true
+
+echo "==> Deploying Keycloak..."
+kubectl apply -f keycloak.yaml
+
 echo "==> Deploying Langfuse..."
 kubectl apply -f langfuse.yaml
 
@@ -65,6 +71,16 @@ echo ""
 echo "==> Deployment complete!"
 echo "URLs:"
 echo "  OpenWebUI:  http://openwebui.local:3100"
+echo "  Keycloak:   http://keycloak.local:3100"
 echo "  Langfuse:   http://langfuse.local:3100"
 echo "  LiteLLM:    http://litellm.local:3100"
 echo "  Dashboard:  http://dashboard.local:3100"
+echo ""
+echo "==> Keycloak Admin:"
+echo "  URL:      http://keycloak.local:3100/admin"
+echo "  Username: admin"
+echo "  Password: admin123"
+echo ""
+echo "==> Default AI Lab User:"
+echo "  Email:    admin@ailab.local"
+echo "  Password: admin123"

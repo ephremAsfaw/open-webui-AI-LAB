@@ -1,4 +1,4 @@
-.PHONY: start stop test dashboard check-docker help
+.PHONY: start stop test check-docker help
 
 CLUSTER_NAME := ai-lab
 NAMESPACE := ai
@@ -33,17 +33,27 @@ start: ## Start the AI Lab k3d cluster and services
 	@echo "==> Waiting for kube-system core pods..."
 	@kubectl -n kube-system wait --for=condition=Ready pod -l k8s-app=kube-dns --timeout=180s >/dev/null 2>&1 || true
 	@kubectl -n kube-system wait --for=condition=Ready pod -l app.kubernetes.io/name=traefik --timeout=180s >/dev/null 2>&1 || true
+	@echo "==> Waiting for Keycloak to be ready..."
+	@kubectl -n $(NAMESPACE) wait --for=condition=Ready pod -l app=keycloak --timeout=120s >/dev/null 2>&1 || true
+	@echo "==> Waiting for Kubernetes Dashboard..."
+	@kubectl -n $(DASH_NS) wait --for=condition=Ready pod -l k8s-app=kubernetes-dashboard --timeout=60s >/dev/null 2>&1 || true
 	@echo "==> Current pods in '$(NAMESPACE)' namespace:"
 	@kubectl -n $(NAMESPACE) get pods -o wide || true
+	@echo ""
+	@echo "==> Pods in '$(DASH_NS)' namespace:"
+	@kubectl -n $(DASH_NS) get pods || true
 	@echo ""
 	@echo "==> Services in '$(NAMESPACE)' namespace:"
 	@kubectl -n $(NAMESPACE) get svc || true
 	@echo ""
 	@echo "==> Useful URLs:"
 	@echo "OpenWebUI:   http://openwebui.local:3100"
+	@echo "Keycloak:    http://keycloak.local:3100"
 	@echo "LiteLLM:     http://litellm.local:3100"
 	@echo "Langfuse:    http://langfuse.local:3100"
 	@echo "Dashboard:   http://dashboard.local:3100"
+	@echo ""
+	@echo "==> Keycloak Admin: http://keycloak.local:3100/admin (admin/admin123)"
 	@echo ""
 	@echo "==> Dashboard token (for login):"
 	@kubectl -n $(DASH_NS) create token kubernetes-dashboard 2>/dev/null || echo "Dashboard not installed"
@@ -67,8 +77,3 @@ test: ## Run tests to verify cluster and services are healthy
 	@echo "==> Testing services in $(NAMESPACE) namespace..."
 	@kubectl -n $(NAMESPACE) get svc 2>/dev/null || echo "No services found in $(NAMESPACE)"
 
-dashboard: ## Start Kubernetes Dashboard port-forward (http://localhost:8080)
-	@echo "==> Starting Kubernetes Dashboard port-forward..."
-	@echo "Open: http://localhost:8080"
-	@echo "(Press Ctrl+C to stop)"
-	@kubectl -n $(DASH_NS) port-forward svc/kubernetes-dashboard 8080:80
