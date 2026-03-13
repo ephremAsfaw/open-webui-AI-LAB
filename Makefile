@@ -1,4 +1,4 @@
-.PHONY: start stop test check-docker help
+.PHONY: start stop deploy test check-docker help docker-up docker-down docker-logs
 
 CLUSTER_NAME := ai-lab
 NAMESPACE := ai
@@ -13,6 +13,9 @@ help: ## Show this help message
 check-docker: ## Check if Docker is running
 	@echo "==> Checking Docker status..."
 	@docker ps >/dev/null 2>&1 && echo "Docker: RUNNING" || { echo "Docker: NOT RUNNING"; exit 1; }
+
+deploy: ## Deploy all AI Lab services to the cluster
+	@./deploy.sh
 
 start: ## Start the AI Lab k3d cluster and services
 	@echo "==> Checking Docker..."
@@ -77,3 +80,15 @@ test: ## Run tests to verify cluster and services are healthy
 	@echo "==> Testing services in $(NAMESPACE) namespace..."
 	@kubectl -n $(NAMESPACE) get svc 2>/dev/null || echo "No services found in $(NAMESPACE)"
 
+# =============================================================================
+# Docker Compose Workflow (Alternative to k3d)
+# =============================================================================
+
+docker-up: ## Start services using Docker Compose
+	@./start-docker.sh
+
+docker-down: ## Stop Docker Compose services
+	@docker compose down
+
+docker-logs: ## View Docker Compose logs
+	@docker compose logs -f

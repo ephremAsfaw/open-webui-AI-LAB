@@ -48,26 +48,39 @@ git clone <repository-url>
 cd AiLab
 ```
 
-### 2. Run Setup Script
+### 2. Setup Credentials
 
 ```bash
-chmod +x setup.sh
-./setup.sh
+# Copy the credentials template
+cp .credentials.example .credentials
+
+# Edit with your preferred values (or keep defaults)
+nano .credentials
 ```
 
-The script will:
+### 3. Configure /etc/hosts
 
-- Check prerequisites
-- Add entries to `/etc/hosts` (requires sudo)
-- Create data directories for persistence
-- Generate unique credentials
-- Create the k3d cluster
-- Deploy all services
-- Pull the llama3.2:1b model
+Add to your `/etc/hosts` file (or `C:\Windows\System32\drivers\etc\hosts` on Windows):
 
-Setup takes approximately 5-10 minutes.
+```
+127.0.0.1 openwebui.local litellm.local langfuse.local keycloak.local dashboard.local
+```
 
-### 3. Access Services
+> **Windows users:** Use `127.0.0.1` only. Do not use `::1` (IPv6) - it will cause issues.
+
+### 4. Create Cluster & Deploy
+
+```bash
+# Create the k3d cluster
+make start
+
+# Deploy all services (first time only)
+make deploy
+```
+
+Setup takes approximately 5-10 minutes for first deployment.
+
+### 5. Access Services
 
 | Service    | URL                         |
 | ---------- | --------------------------- |
@@ -133,20 +146,20 @@ To enable LLM tracing in Langfuse:
    - Click "Create new API keys"
    - Copy the Public Key and Secret Key
 
-4. **Update LiteLLM Configuration**
+4. **Update Credentials**
 
    ```bash
-   # Edit the values file
-   nano charts/litellm/values.yaml
+   # Edit .credentials file
+   nano .credentials
 
    # Update these lines:
-   LANGFUSE_PUBLIC_KEY: "pk-lf-your-public-key"
-   LANGFUSE_SECRET_KEY: "sk-lf-your-secret-key"
+   LANGFUSE_PUBLIC_KEY=pk-lf-your-public-key
+   LANGFUSE_SECRET_KEY=sk-lf-your-secret-key
    ```
 
 5. **Apply Changes**
    ```bash
-   helm upgrade litellm ./charts/litellm -n ai
+   make deploy
    ```
 
 Now all LLM conversations will be traced in Langfuse!
@@ -165,12 +178,12 @@ make start
 make stop
 ```
 
-**Important:** Use `make stop` to pause the cluster. Never use `docker system prune` while the cluster exists - it will delete your data!
+### Re-deploy Services
 
-### Check Status
+If you update configuration:
 
 ```bash
-make test
+make deploy
 ```
 
 ### View All Commands
@@ -178,6 +191,34 @@ make test
 ```bash
 make help
 ```
+
+Output:
+```
+Usage: make [target]
+
+Targets:
+  help            Show this help message
+  check-docker    Check if Docker is running
+  deploy          Deploy all AI Lab services to the cluster
+  start           Start the AI Lab k3d cluster and services
+  stop            Stop the AI Lab k3d cluster
+  test            Run tests to verify cluster and services are healthy
+  docker-up       Start services using Docker Compose
+  docker-down     Stop Docker Compose services
+  docker-logs     View Docker Compose logs
+```
+
+### Alternative: Docker Compose
+
+For a simpler setup without Kubernetes:
+
+```bash
+make docker-up     # Start with Docker Compose
+make docker-down   # Stop
+make docker-logs   # View logs
+```
+
+**Important:** Use `make stop` to pause the cluster. Never use `docker system prune` while the cluster exists - it will delete your data!
 
 ## Architecture
 
