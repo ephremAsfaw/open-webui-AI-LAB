@@ -69,13 +69,13 @@ Setup takes approximately 5-10 minutes.
 
 ### 3. Access Services
 
-| Service    | URL                          |
-| ---------- | ---------------------------- |
-| Open WebUI | http://openwebui.local:3100  |
-| LiteLLM    | http://litellm.local:3100    |
-| Langfuse   | http://langfuse.local:3100   |
-| Keycloak   | http://keycloak.local:3100   |
-| Dashboard  | http://dashboard.local:3100  |
+| Service    | URL                         |
+| ---------- | --------------------------- |
+| Open WebUI | http://openwebui.local:3100 |
+| LiteLLM    | http://litellm.local:3100   |
+| Langfuse   | http://langfuse.local:3100  |
+| Keycloak   | http://keycloak.local:3100  |
+| Dashboard  | http://dashboard.local:3100 |
 
 ## Authentication
 
@@ -85,10 +85,10 @@ AI Lab uses **Keycloak** for single sign-on (SSO). When you access Open WebUI, y
 
 After setup, use these credentials to login:
 
-| Service  | Username | Password    |
-| -------- | -------- | ----------- |
-| Keycloak Admin | admin | See `.credentials` file |
-| Test User | admin@ailab.local | See `.credentials` file |
+| Service        | Username          | Password                |
+| -------------- | ----------------- | ----------------------- |
+| Keycloak Admin | admin             | See `.credentials` file |
+| Test User      | admin@ailab.local | See `.credentials` file |
 
 ### First-Time Login Flow
 
@@ -101,6 +101,7 @@ After setup, use these credentials to login:
 ### Logout
 
 When you logout from Open WebUI:
+
 - You'll see a "Signed out" confirmation page
 - Automatic redirect back to login after 5 seconds
 
@@ -109,6 +110,7 @@ When you logout from Open WebUI:
 Access Keycloak Admin Console at http://keycloak.local:3100/admin
 
 From there you can:
+
 - Create new users
 - Assign roles
 - Configure authentication policies
@@ -237,6 +239,7 @@ rm -rf data/
 ### Setup Credentials
 
 1. Copy the example file:
+
    ```bash
    cp .credentials.example .credentials
    ```
@@ -248,16 +251,16 @@ rm -rf data/
 
 ### Credentials File Contents
 
-| Variable | Description |
-| -------- | ----------- |
-| `POSTGRES_PASSWORD` | PostgreSQL admin password |
-| `LITELLM_MASTER_KEY` | API key for LiteLLM proxy |
-| `LANGFUSE_PUBLIC_KEY` | Langfuse project public key |
-| `LANGFUSE_SECRET_KEY` | Langfuse project secret key |
-| `KEYCLOAK_ADMIN_PASSWORD` | Keycloak admin console password |
-| `KC_DB_PASSWORD` | Keycloak database password |
-| `OAUTH_CLIENT_SECRET` | OIDC client secret for Open WebUI |
-| `KEYCLOAK_TEST_USER_PASSWORD` | Password for test user |
+| Variable                      | Description                       |
+| ----------------------------- | --------------------------------- |
+| `POSTGRES_PASSWORD`           | PostgreSQL admin password         |
+| `LITELLM_MASTER_KEY`          | API key for LiteLLM proxy         |
+| `LANGFUSE_PUBLIC_KEY`         | Langfuse project public key       |
+| `LANGFUSE_SECRET_KEY`         | Langfuse project secret key       |
+| `KEYCLOAK_ADMIN_PASSWORD`     | Keycloak admin console password   |
+| `KC_DB_PASSWORD`              | Keycloak database password        |
+| `OAUTH_CLIENT_SECRET`         | OIDC client secret for Open WebUI |
+| `KEYCLOAK_TEST_USER_PASSWORD` | Password for test user            |
 
 ### View Current Credentials
 
