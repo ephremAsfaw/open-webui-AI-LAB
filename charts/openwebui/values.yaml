@@ -14,7 +14,8 @@ persistence:
 
 env:
   OPENAI_API_BASE_URL: "http://litellm.ai.svc.cluster.local:4000/v1"
-  OPENAI_API_KEY: "sk-1d6c1901c89380f9ce4b0cc4b2c23f2e402afdb5441b418d64ca262e3835b824"
+  # See .credentials file for actual value
+  OPENAI_API_KEY: "${LITELLM_MASTER_KEY}"
   ENABLE_FORWARD_USER_INFO_HEADERS: "True"
   # Disable direct Ollama connection - force all requests through LiteLLM
   ENABLE_OLLAMA_API: "False"
@@ -36,7 +37,8 @@ env:
   # Uses internal K8s DNS for backend communication - must be full discovery URL
   OPENID_PROVIDER_URL: "http://keycloak.ai.svc.cluster.local:3100/realms/ai-lab/.well-known/openid-configuration"
   OAUTH_CLIENT_ID: "openwebui"
-  OAUTH_CLIENT_SECRET: "openwebui-client-secret-change-me"
+  # See .credentials file for actual value
+  OAUTH_CLIENT_SECRET: "${OAUTH_CLIENT_SECRET}"
   OAUTH_SCOPES: "openid email profile"
   OAUTH_CODE_CHALLENGE_METHOD: "S256"
 

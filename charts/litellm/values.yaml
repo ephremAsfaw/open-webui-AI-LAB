@@ -7,13 +7,14 @@ service:
   port: 4000
 
 env:
-  LITELLM_MASTER_KEY: "sk-1d6c1901c89380f9ce4b0cc4b2c23f2e402afdb5441b418d64ca262e3835b824"
+  # See .credentials file for actual values
+  LITELLM_MASTER_KEY: "${LITELLM_MASTER_KEY}"
   LITELLM_ENABLE_ADMIN_UI: "true"
-  DATABASE_URL: "postgresql://postgres:FROREJ4fhH@langfuse-db-postgresql.ai.svc.cluster.local:5432/litellm"
+  DATABASE_URL: "postgresql://postgres:${POSTGRES_PASSWORD}@langfuse-db-postgresql.ai.svc.cluster.local:5432/litellm"
 
-  # IMPORTANT: use the REAL pk + sk from your Langfuse project
-  LANGFUSE_PUBLIC_KEY: "pk-lf-658506d3-8ac0-492c-a540-608b76cfa3d8"
-  LANGFUSE_SECRET_KEY: "sk-lf-8dd274fd-b04d-46d8-b4b6-91b79d0165c5"
+  # IMPORTANT: Get these from Langfuse UI after creating a project
+  LANGFUSE_PUBLIC_KEY: "${LANGFUSE_PUBLIC_KEY}"
+  LANGFUSE_SECRET_KEY: "${LANGFUSE_SECRET_KEY}"
 
   # Langfuse host (internal cluster service URL)
   LANGFUSE_HOST: "http://langfuse.ai.svc.cluster.local:3000"

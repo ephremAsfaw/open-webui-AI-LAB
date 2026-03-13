@@ -5,9 +5,10 @@ metadata:
   namespace: ai
 type: Opaque
 stringData:
-  KEYCLOAK_ADMIN: "admin"
-  KEYCLOAK_ADMIN_PASSWORD: "admin123"
-  KC_DB_PASSWORD: "FROREJ4fhH"
+  # See .credentials file for actual values
+  KEYCLOAK_ADMIN: "${KEYCLOAK_ADMIN_USER}"
+  KEYCLOAK_ADMIN_PASSWORD: "${KEYCLOAK_ADMIN_PASSWORD}"
+  KC_DB_PASSWORD: "${KC_DB_PASSWORD}"
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -44,7 +45,7 @@ data:
           "name": "Open WebUI",
           "enabled": true,
           "publicClient": false,
-          "secret": "openwebui-client-secret-change-me",
+          "secret": "${OAUTH_CLIENT_SECRET}",
           "redirectUris": [
             "http://openwebui.local:3100/*",
             "http://openwebui.local/*",
@@ -79,7 +80,7 @@ data:
           "credentials": [
             {
               "type": "password",
-              "value": "admin123",
+              "value": "${KEYCLOAK_TEST_USER_PASSWORD}",
               "temporary": false
             }
           ],

@@ -1,6 +1,7 @@
 # PostgreSQL Helm values with hostPath persistence
 auth:
-  postgresPassword: FROREJ4fhH
+  # See .credentials file for actual value
+  postgresPassword: "${POSTGRES_PASSWORD}"
   username: langfuse
   password: langfusepass
   database: langfuse

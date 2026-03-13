@@ -6,6 +6,7 @@ A complete local AI development environment running on Kubernetes (k3d) with:
 - **LiteLLM** - OpenAI-compatible API proxy with observability
 - **Open WebUI** - ChatGPT-like web interface
 - **Langfuse** - LLM tracing and analytics
+- **Keycloak** - Identity and access management (SSO)
 - **Kubernetes Dashboard** - Cluster management UI
 
 ## Prerequisites
@@ -68,12 +69,50 @@ Setup takes approximately 5-10 minutes.
 
 ### 3. Access Services
 
-| Service    | URL                         |
-| ---------- | --------------------------- |
-| Open WebUI | http://openwebui.local:3100 |
-| LiteLLM    | http://litellm.local:3100   |
-| Langfuse   | http://langfuse.local:3100  |
-| Dashboard  | http://dashboard.local:3100 |
+| Service    | URL                          |
+| ---------- | ---------------------------- |
+| Open WebUI | http://openwebui.local:3100  |
+| LiteLLM    | http://litellm.local:3100    |
+| Langfuse   | http://langfuse.local:3100   |
+| Keycloak   | http://keycloak.local:3100   |
+| Dashboard  | http://dashboard.local:3100  |
+
+## Authentication
+
+AI Lab uses **Keycloak** for single sign-on (SSO). When you access Open WebUI, you'll be redirected to Keycloak to login.
+
+### Default Login
+
+After setup, use these credentials to login:
+
+| Service  | Username | Password    |
+| -------- | -------- | ----------- |
+| Keycloak Admin | admin | See `.credentials` file |
+| Test User | admin@ailab.local | See `.credentials` file |
+
+### First-Time Login Flow
+
+1. Go to http://openwebui.local:3100
+2. Click "AI Lab Login" (redirects to Keycloak)
+3. Enter your credentials
+4. Accept the Terms & Conditions
+5. You're now logged into Open WebUI!
+
+### Logout
+
+When you logout from Open WebUI:
+- You'll see a "Signed out" confirmation page
+- Automatic redirect back to login after 5 seconds
+
+### Managing Users
+
+Access Keycloak Admin Console at http://keycloak.local:3100/admin
+
+From there you can:
+- Create new users
+- Assign roles
+- Configure authentication policies
+- View active sessions
 
 ## Post-Setup: Configure Langfuse Tracing
 
@@ -148,13 +187,19 @@ make help
 │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐   │
 │  │  Open WebUI │───▶│   LiteLLM   │───▶│   Ollama    │   │
 │  │   :8080     │    │    :4000    │    │   :11434    │   │
-│  └─────────────┘    └──────┬──────┘    └─────────────┘   │
-│                            │                              │
-│                            ▼                              │
-│  ┌─────────────┐    ┌─────────────┐                      │
-│  │ PostgreSQL  │◀───│  Langfuse   │                      │
-│  │   :5432     │    │   :3000     │                      │
-│  └─────────────┘    └─────────────┘                      │
+│  └──────┬──────┘    └──────┬──────┘    └─────────────┘   │
+│         │                  │                              │
+│         │ OIDC             ▼                              │
+│         ▼           ┌─────────────┐                      │
+│  ┌─────────────┐    │  Langfuse   │                      │
+│  │  Keycloak   │    │   :3000     │                      │
+│  │   :8080     │    └──────┬──────┘                      │
+│  └──────┬──────┘           │                              │
+│         │                  ▼                              │
+│         └────────▶ ┌─────────────┐                       │
+│                    │ PostgreSQL  │                        │
+│                    │   :5432     │                        │
+│                    └─────────────┘                        │
 │                                                           │
 ├───────────────────────────────────────────────────────────┤
 │  nginx ingress (NodePort 30510 → Host 3100)               │
@@ -187,17 +232,40 @@ rm -rf data/
 
 ## Credentials
 
-Credentials are auto-generated during setup and saved to `.credentials`:
+**Important:** Credentials are stored in `.credentials` file (gitignored).
+
+### Setup Credentials
+
+1. Copy the example file:
+   ```bash
+   cp .credentials.example .credentials
+   ```
+
+2. Edit `.credentials` with your actual values:
+   ```bash
+   nano .credentials
+   ```
+
+### Credentials File Contents
+
+| Variable | Description |
+| -------- | ----------- |
+| `POSTGRES_PASSWORD` | PostgreSQL admin password |
+| `LITELLM_MASTER_KEY` | API key for LiteLLM proxy |
+| `LANGFUSE_PUBLIC_KEY` | Langfuse project public key |
+| `LANGFUSE_SECRET_KEY` | Langfuse project secret key |
+| `KEYCLOAK_ADMIN_PASSWORD` | Keycloak admin console password |
+| `KC_DB_PASSWORD` | Keycloak database password |
+| `OAUTH_CLIENT_SECRET` | OIDC client secret for Open WebUI |
+| `KEYCLOAK_TEST_USER_PASSWORD` | Password for test user |
+
+### View Current Credentials
 
 ```bash
 cat .credentials
 ```
 
-Contains:
-
-- `LITELLM_MASTER_KEY` - API key for LiteLLM
-- `POSTGRES_PASSWORD` - PostgreSQL admin password
-- `LANGFUSE_DB_PASSWORD` - Langfuse database password
+**Note:** The config files use `${VARIABLE}` placeholders. The deploy scripts substitute these with actual values from `.credentials`.
 
 ## Troubleshooting
 
@@ -268,13 +336,16 @@ The llama3.2:1b model is optimized for CPU inference. For better performance wit
 ```
 AiLab/
 ├── setup.sh              # Main setup script
+├── deploy.sh             # Deployment script
 ├── Makefile              # Daily operations (start/stop/test)
 ├── k3d-config.yaml       # k3d cluster configuration
-├── .credentials          # Generated API keys (gitignored)
+├── .credentials          # Actual credentials (gitignored)
+├── .credentials.example  # Credentials template (committed)
 ├── data/                 # Persistent data (gitignored)
 ├── charts/
 │   ├── litellm/          # LiteLLM Helm chart
 │   └── openwebui/        # Open WebUI Helm chart
+├── keycloak.yaml         # Keycloak deployment & theme
 ├── storage-class.yaml    # Kubernetes storage class
 ├── persistent-volumes.yaml
 ├── postgres-values.yaml
