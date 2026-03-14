@@ -9,16 +9,16 @@ ports:
     nodeFilters:
       - server:0
 volumes:
-  - volume: /home/ephrem/AiLab/data/postgres:/data/postgres
+  - volume: /home/ephremasfaw/open-webui-AI-LAB/data/postgres:/data/postgres
     nodeFilters:
       - server:0
-  - volume: /home/ephrem/AiLab/data/openwebui:/data/openwebui
+  - volume: /home/ephremasfaw/open-webui-AI-LAB/data/openwebui:/data/openwebui
     nodeFilters:
       - server:0
-  - volume: /home/ephrem/AiLab/data/ollama:/data/ollama
+  - volume: /home/ephremasfaw/open-webui-AI-LAB/data/ollama:/data/ollama
     nodeFilters:
       - server:0
-  - volume: /home/ephrem/AiLab/data/langfuse:/data/langfuse
+  - volume: /home/ephremasfaw/open-webui-AI-LAB/data/langfuse:/data/langfuse
     nodeFilters:
       - server:0
 options:

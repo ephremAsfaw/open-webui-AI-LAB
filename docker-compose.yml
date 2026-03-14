@@ -128,8 +128,6 @@ services:
       SENTENCE_TRANSFORMERS_HOME: /tmp/disabled-st-cache
     volumes:
       - openwebui_data:/app/backend/data
-    ports:
-      - "8080:8080"
 
 volumes:
   postgres_data:

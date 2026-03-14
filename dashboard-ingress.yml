@@ -3,6 +3,8 @@ kind: Ingress
 metadata:
   name: kubernetes-dashboard-ingress
   namespace: kubernetes-dashboard
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
 spec:
   ingressClassName: nginx
   rules:
@@ -15,4 +17,4 @@ spec:
               service:
                 name: kubernetes-dashboard
                 port:
-                  number: 80
+                  number: 443
