@@ -33,11 +33,34 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres123}@postgres:5432/langfuse
-      NEXTAUTH_URL: http://localhost:3000
+      NEXTAUTH_URL: http://localhost:3001
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-change-me-in-production}
       SALT: ${SALT:-change-me-in-production}
     ports:
-      - "3000:3000"
+      - "3001:3000"
+
+  # ===========================================
+  # Keycloak - Identity & Access Management
+  # ===========================================
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: ai-lab-keycloak
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres123}
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin123}
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME_STRICT: "false"
+    command: start-dev
+    ports:
+      - "8180:8080"
 
   # ===========================================
   # Ollama - Local LLM Runner
@@ -46,16 +69,12 @@ services:
     image: ollama/ollama:latest
     container_name: ai-lab-ollama
     restart: unless-stopped
+    gpus: all
+    environment:
+      NVIDIA_VISIBLE_DEVICES: all
+      NVIDIA_DRIVER_CAPABILITIES: compute,utility
     volumes:
       - ollama_data:/root/.ollama
-    # Uncomment for GPU support (NVIDIA):
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: all
-    #           capabilities: [gpu]
 
   # ===========================================
   # LiteLLM - OpenAI-Compatible Proxy
@@ -95,6 +114,18 @@ services:
       OPENAI_API_KEY: ${LITELLM_MASTER_KEY:-sk-1234567890}
       ENABLE_OLLAMA_API: "false"
       ENABLE_REALTIME_CHAT_SAVE: "False"
+      ENABLE_IMAGE_GENERATION: "False"
+      WHISPER_MODEL: ""
+      WHISPER_MODEL_AUTO_UPDATE: "False"
+      AUDIO_STT_ENGINE: ""
+      AUDIO_STT_MODEL: ""
+      RAG_EMBEDDING_MODEL: ""
+      RAG_RERANKING_MODEL: ""
+      USE_EMBEDDING_MODEL_DOCKER: ""
+      USE_AUXILIARY_EMBEDDING_MODEL_DOCKER: ""
+      USE_RERANKING_MODEL_DOCKER: ""
+      HF_HOME: /tmp/disabled-hf-cache
+      SENTENCE_TRANSFORMERS_HOME: /tmp/disabled-st-cache
     volumes:
       - openwebui_data:/app/backend/data
     ports:
@@ -104,3 +135,4 @@ volumes:
   postgres_data:
   ollama_data:
   openwebui_data:
+  keycloak_data:

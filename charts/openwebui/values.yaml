@@ -35,7 +35,7 @@ env:
 
   # Keycloak OIDC endpoints
   # Uses internal K8s DNS for backend communication - must be full discovery URL
-  OPENID_PROVIDER_URL: "http://keycloak.ai.svc.cluster.local:3100/realms/ai-lab/.well-known/openid-configuration"
+  OPENID_PROVIDER_URL: "http://keycloak.ai.svc.cluster.local:8080/realms/ai-lab/.well-known/openid-configuration"
   OAUTH_CLIENT_ID: "openwebui"
   # See .credentials file for actual value
   OAUTH_CLIENT_SECRET: "${OAUTH_CLIENT_SECRET}"

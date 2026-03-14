@@ -8,7 +8,7 @@ stringData:
   # See .credentials file for actual values
   KEYCLOAK_ADMIN: "${KEYCLOAK_ADMIN_USER}"
   KEYCLOAK_ADMIN_PASSWORD: "${KEYCLOAK_ADMIN_PASSWORD}"
-  KC_DB_PASSWORD: "${KC_DB_PASSWORD}"
+  KC_DB_PASSWORD: "${POSTGRES_PASSWORD}"
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -624,6 +624,13 @@ spec:
           args:
             - start-dev
             - --import-realm
+            - --http-enabled=true
+            - --http-port=8080
+            - --hostname-url=http://keycloak.local:3100
+            - --hostname-admin-url=http://keycloak.local:3100
+            - --hostname-strict=false
+            - --hostname-strict-https=false
+            - --proxy-headers=xforwarded
           ports:
             - containerPort: 8080
           env:
@@ -648,15 +655,7 @@ spec:
                 secretKeyRef:
                   name: keycloak-secret
                   key: KC_DB_PASSWORD
-            - name: KC_PROXY
-              value: edge
-            - name: KC_HOSTNAME_URL
-              value: "http://keycloak.local:3100"
-            - name: KC_HOSTNAME_ADMIN_URL
-              value: "http://keycloak.local:3100"
             - name: KC_HOSTNAME_STRICT
-              value: "false"
-            - name: KC_HOSTNAME_STRICT_BACKCHANNEL
               value: "false"
             - name: KC_HTTP_ENABLED
               value: "true"

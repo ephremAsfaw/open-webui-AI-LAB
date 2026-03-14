@@ -39,6 +39,7 @@ spec:
             limits:
               memory: "4Gi"
               cpu: "4"
+              nvidia.com/gpu: "1"
           volumeMounts:
             - name: ollama-data
               mountPath: /root/.ollama
